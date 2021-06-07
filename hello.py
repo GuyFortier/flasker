@@ -1,4 +1,4 @@
-from re import T
+
 from flask import Flask, render_template, flash
 from flask_sqlalchemy.model import Model
 from flask_wtf import FlaskForm
@@ -9,8 +9,13 @@ from datetime import datetime
 
 # Create a Flask Instance
 app = Flask(__name__)
+
 # Add Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+# Old SQLite DB
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///our_users.db'
+# New MySQL DB
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://myusername:mypassword@localhost/our_users'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Secret Key
 app.config['SECRET_KEY'] = "my secret key"
 #Initialize The Database
