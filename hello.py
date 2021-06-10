@@ -1,5 +1,7 @@
 
 from flask import Flask, render_template, flash
+from flask.wrappers import Request
+import pymysql
 from flask_sqlalchemy.model import Model
 from flask_wtf import FlaskForm
 from wtforms import StringField,SubmitField
@@ -7,19 +9,23 @@ from wtforms.validators import DataRequired, Email
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
+from sqlalchemy import create_engine
+
+
 # Create a Flask Instance
 app = Flask(__name__)
 
 # Add Database
 # Old SQLite DB
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///our_users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///our_users.db'
 # New MySQL DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://myusername:mypassword@localhost/our_users'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:password123@localhost/our_users'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Secret Key
 app.config['SECRET_KEY'] = "my secret key"
 #Initialize The Database
 db = SQLAlchemy(app)
+
 
 # Create Model
 class Users(db.Model):
@@ -38,6 +44,27 @@ class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+# Update Database Record
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update(id):
+    form = UserForm()
+    name_to_update = Users.query.get_or_404(id)
+    if Request.method == "POST":
+        name_to_update.name - Request.form['name']
+        name_to_update.email - Request.form['email']
+        try:
+            db.session.commit()
+            flash("User Updated Successfully!")
+            return render_template("update.html",
+            form=form,
+            name_to_update = name_to_update)
+        except:
+            flash("Error!  Looks like there was a problem...try again!")
+        return render_template("update.html",
+            form=form,
+            name_to_update = name_to_update)
+
 
 #Create a Form Class
 class NamerForm(FlaskForm):
